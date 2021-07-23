@@ -183,7 +183,7 @@ const Home = () => {
             <div className="flex justify-end mb-4">
               <div className="flex items-center gap-2">
                 <img
-                  className="rounded-full h-5 w-5"
+                  className="rounded-full h-5 w-5 object-cover"
                   src={currentUser.images[0].url}
                   alt={currentUser.display_name}
                 />
