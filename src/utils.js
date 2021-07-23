@@ -42,4 +42,23 @@ const getUrlParams = (url) => {
   return params;
 };
 
-export { generateId, generateRandomInt, base64UrlEncode, sha256, getUrlParams };
+function isValidHttpUrl(string) {
+  let url;
+
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
+}
+
+export {
+  generateId,
+  generateRandomInt,
+  base64UrlEncode,
+  sha256,
+  getUrlParams,
+  isValidHttpUrl,
+};
