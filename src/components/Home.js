@@ -27,7 +27,6 @@ const Home = () => {
 
   const fetchCurrentUser = async () => {
     const { data } = await spotify.get("/me");
-    console.log(data);
     setCurrentUser(data);
   };
 
@@ -100,14 +99,12 @@ const Home = () => {
         public: false,
       }
     );
-    console.log(newPrivatePlaylist.data);
 
     const artistTracksChunks = [...arrayChunks(artistTracks, 100)];
 
     const snapshotIds = [];
     for (let i = 0; i < artistTracksChunks.length; i++) {
       const tracks = artistTracksChunks[i];
-      console.log(tracks.map((track) => track.uri));
       const response = await spotify.post(
         `/playlists/${newPrivatePlaylist.data.id}/tracks`,
         {
