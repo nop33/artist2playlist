@@ -204,14 +204,16 @@ const Home = () => {
               title={artist.name}
               buttons={cardButton}
             >
-              <CardInfoIconedText
-                IconComponent={FingerPrintIcon}
-                title="Genres"
-              >
-                {artist.genres
-                  .map((genre) => <span key={genre}>{genre}</span>)
-                  .reduce((prev, curr) => [prev, ", ", curr])}
-              </CardInfoIconedText>
+              {artist.genres.length > 0 && (
+                <CardInfoIconedText
+                  IconComponent={FingerPrintIcon}
+                  title="Genres"
+                >
+                  {artist.genres
+                    .map((genre) => <span key={genre}>{genre}</span>)
+                    .reduce((prev, curr) => [prev, ", ", curr])}
+                </CardInfoIconedText>
+              )}
               <CardInfoIconedText IconComponent={UsersIcon}>
                 <div>{artist.followers.total.toLocaleString()} followers</div>
               </CardInfoIconedText>
