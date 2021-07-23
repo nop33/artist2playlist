@@ -22,35 +22,15 @@ const initiateSpotifyLogin = async () => {
     `?response_type=code` +
     `&client_id=${process.env.REACT_APP_SPOTIFY_CLIENT_ID}` +
     `&redirect_uri=${process.env.REACT_APP_SPOTIFY_REDIRECT_URI}` +
-    `&scope=user-follow-modify` +
+    `&scope=playlist-read-private,playlist-modify-private` +
     `&state=${state}` +
     `&code_challenge=${codeChallenge}` +
     `&code_challenge_method=S256`;
 
-  console.log("codeVerifier", codeVerifier);
-  console.log("state", state);
-
   window.open(authURL);
 };
 
-const authenticate = async () => {
-  const { code, state } = getUrlParams(window.location.href);
-
-  if (state !== localStorage.getItem("spotify-state")) {
-    console.log("Spotify state not found in local storage");
-    return false;
-  }
-
-  const postParams = new URLSearchParams();
-  postParams.append("client_id", process.env.REACT_APP_SPOTIFY_CLIENT_ID);
-  postParams.append("grant_type", "authorization_code");
-  postParams.append("code", code);
-  postParams.append("redirect_uri", process.env.REACT_APP_SPOTIFY_REDIRECT_URI);
-  postParams.append(
-    "code_verifier",
-    localStorage.getItem("spotify-code-verifier")
-  );
-
+const getAndStoreAccessToken = async (postParams) => {
   try {
     const { data } = await axios.post(
       "https://accounts.spotify.com/api/token",
@@ -75,6 +55,43 @@ const authenticate = async () => {
   }
 };
 
+const authenticate = async () => {
+  const { code, state } = getUrlParams(window.location.href);
+
+  if (state !== localStorage.getItem("spotify-state")) {
+    console.log("Spotify state not found in local storage");
+    return false;
+  }
+
+  const postParams = new URLSearchParams();
+  postParams.append("client_id", process.env.REACT_APP_SPOTIFY_CLIENT_ID);
+  postParams.append("grant_type", "authorization_code");
+  postParams.append("code", code);
+  postParams.append("redirect_uri", process.env.REACT_APP_SPOTIFY_REDIRECT_URI);
+  postParams.append(
+    "code_verifier",
+    localStorage.getItem("spotify-code-verifier")
+  );
+
+  return await getAndStoreAccessToken(postParams);
+};
+
+const refreshToken = async () => {
+  const refreshToken = localStorage.getItem("spotify-refresh-token");
+
+  if (!refreshToken) {
+    console.log("Spotify refresh token not found in local storage");
+    return false;
+  }
+
+  const postParams = new URLSearchParams();
+  postParams.append("client_id", process.env.REACT_APP_SPOTIFY_CLIENT_ID);
+  postParams.append("grant_type", "refresh_token");
+  postParams.append("refresh_token", refreshToken);
+
+  return await getAndStoreAccessToken(postParams);
+};
+
 const isLoggedIn = () => {
   const tokenIssuedAt = localStorage.getItem("spotify-token-issued-at");
   const tokenExpiresIn = localStorage.getItem("spotify-expires-in");
@@ -84,10 +101,12 @@ const isLoggedIn = () => {
   }
 
   const tokenExpiresAt = new Date(tokenIssuedAt);
-  tokenExpiresAt.setSeconds(tokenExpiresAt.getSeconds() + tokenExpiresIn);
+  tokenExpiresAt.setSeconds(
+    tokenExpiresAt.getSeconds() + parseInt(tokenExpiresIn)
+  );
   const now = new Date();
 
   return now < tokenExpiresAt;
 };
 
-export { authenticate, isLoggedIn, initiateSpotifyLogin };
+export { authenticate, isLoggedIn, initiateSpotifyLogin, refreshToken };

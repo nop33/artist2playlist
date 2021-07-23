@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 
 import { isLoggedIn, initiateSpotifyLogin } from "../auth";
+import Button from "../components/Button";
 
 const SpotifyLogin = () => {
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
@@ -30,7 +31,9 @@ const SpotifyLogin = () => {
   return loggedIn ? (
     <Redirect to="/" />
   ) : (
-    <button onClick={onLoginButtonClicked}>Log in with Spotify</button>
+    <Button className="mx-auto flex my-10" onClick={onLoginButtonClicked}>
+      Log in with Spotify
+    </Button>
   );
 };
 

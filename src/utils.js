@@ -42,7 +42,7 @@ const getUrlParams = (url) => {
   return params;
 };
 
-function isValidHttpUrl(string) {
+const isValidHttpUrl = (string) => {
   let url;
 
   try {
@@ -52,6 +52,13 @@ function isValidHttpUrl(string) {
   }
 
   return url.protocol === "http:" || url.protocol === "https:";
+};
+
+function* arrayChunks(array, size) {
+  let i = 0;
+  while (i < array.length) {
+    yield array.slice(i, (i += size));
+  }
 }
 
 export {
@@ -61,4 +68,5 @@ export {
   sha256,
   getUrlParams,
   isValidHttpUrl,
+  arrayChunks,
 };
