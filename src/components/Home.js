@@ -179,7 +179,7 @@ const Home = () => {
   ) : null;
 
   return (
-    <div className="min-h-screen bg-gray-800">
+    <div className="min-h-screen bg-gray-800 flex flex-col justify-between">
       <div className="container mx-auto p-10 flex justify-center">
         <div className="w-full lg:w-1/2">
           {currentUser && (
@@ -233,6 +233,19 @@ const Home = () => {
               </CardInfoIconedText>
             </Card>
           )}
+        </div>
+      </div>
+      <div className="container mx-auto p-10 flex justify-center text-white">
+        <div>
+          Created with ❤️ and 🤩 by{" "}
+          <a
+            href="https://www.iliascreates.com/music"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-300 hover:text-blue-400"
+          >
+            Fetamin
+          </a>
         </div>
       </div>
     </div>
