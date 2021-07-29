@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { authenticate } from "../auth";
+import PageLayout from "../components/layout/PageLayout";
 
 const SpotifyAuthRedirect = () => {
   const [authSuccessful, setAuthSuccessful] = useState(false);
@@ -21,11 +22,11 @@ const SpotifyAuthRedirect = () => {
   }
 
   return (
-    <div>
-      {!authSuccessful && !hasError && <h3>Authenticating...</h3>}
+    <PageLayout className="text-white">
+      {!authSuccessful && !hasError && <div>Authenticating...</div>}
       {authSuccessful && <div>Authentication successful!</div>}
       {hasError && <div>Authentication failed!</div>}
-    </div>
+    </PageLayout>
   );
 };
 
