@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 
-import { isLoggedIn, initiateSpotifyLogin } from "../auth";
+import { isTokenStillValid, initiateSpotifyLogin } from "../auth";
 import Button from "../components/Button";
 import PageLayout from "../components/layout/PageLayout";
 
 const SpotifyLogin = () => {
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const [loggedIn, setLoggedIn] = useState(isTokenStillValid());
   const [loginButtonClicked, setLoginButtonClicked] = useState(false);
 
   useEffect(() => {
     let authInterval = "";
     if (loginButtonClicked) {
       authInterval = setInterval(() => {
-        if (isLoggedIn()) {
+        if (isTokenStillValid()) {
           setLoggedIn(true);
         }
       }, 1000);
