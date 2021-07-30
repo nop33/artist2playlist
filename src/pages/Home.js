@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 
-import { isLoggedIn, refreshToken } from "../auth";
+import { isLoggedIn } from "../auth";
 import { isValidHttpUrl } from "../utils";
 import spotify from "../apis/spotify";
 import UserInfo from "../components/UserInfo";
@@ -34,7 +34,7 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!isLoggedIn() && !(await refreshToken())) {
+      if (!(await isLoggedIn())) {
         setRedirectToLogin(true);
       } else {
         fetchCurrentUser();

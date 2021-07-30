@@ -92,7 +92,7 @@ const refreshToken = async () => {
   return await getAndStoreAccessToken(postParams);
 };
 
-const isLoggedIn = () => {
+const isTokenStillValid = () => {
   const tokenIssuedAt = localStorage.getItem("spotify-token-issued-at");
   const tokenExpiresIn = localStorage.getItem("spotify-expires-in");
 
@@ -109,4 +109,14 @@ const isLoggedIn = () => {
   return now < tokenExpiresAt;
 };
 
-export { authenticate, isLoggedIn, initiateSpotifyLogin, refreshToken };
+const isLoggedIn = async () => {
+  return isTokenStillValid() || (await refreshToken());
+};
+
+export {
+  authenticate,
+  isLoggedIn,
+  initiateSpotifyLogin,
+  refreshToken,
+  isTokenStillValid,
+};
