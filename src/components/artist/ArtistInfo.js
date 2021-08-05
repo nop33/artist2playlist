@@ -10,19 +10,10 @@ import {
   UsersIcon,
   MusicNoteIcon,
 } from "@heroicons/react/solid";
+import CreateUserPlaylistButton from "../user/CreateUserPlaylistButton";
 
-const ArtistInfo = ({
-  artist,
-  artistTracks,
-  setArtistTracks,
-  clickedCreatePlaylist,
-  successfullyCreatedPlaylist,
-  setSuccessfullyCreatedPlaylist,
-  setClickedCreatePlaylist,
-  currentUserId,
-}) => {
+const ArtistInfo = ({ artist, artistTracks, setArtistTracks }) => {
   const [loadingTracks, setLoadingTracks] = useState(false);
-  const [loadingCreatingPlaylist, setLoadingCreatingPlaylist] = useState(false);
 
   const fetchArtistTracks = async () => {
     setLoadingTracks(true);
@@ -76,67 +67,19 @@ const ArtistInfo = ({
     setLoadingTracks(false);
   };
 
-  const createPrivatePlaylist = async () => {
-    setLoadingCreatingPlaylist(true);
-    const newPrivatePlaylist = await spotify.post(
-      `/users/${currentUserId}/playlists`,
-      {
-        name: `to curate artist: ${artist.name}`,
-        public: false,
-      }
-    );
-
-    const artistTracksChunks = [...arrayChunks(artistTracks, 100)];
-
-    const snapshotIds = [];
-    for (let i = 0; i < artistTracksChunks.length; i++) {
-      const tracks = artistTracksChunks[i];
-      const response = await spotify.post(
-        `/playlists/${newPrivatePlaylist.data.id}/tracks`,
-        {
-          uris: tracks.map((track) => track.uri),
-        }
-      );
-      snapshotIds.push(response.data.snapshot_id);
-    }
-    if (snapshotIds.length === artistTracksChunks.length) {
-      setLoadingCreatingPlaylist(false);
-      setSuccessfullyCreatedPlaylist(true);
-    }
-  };
-
   const onFetchDiscographyClicked = () => {
     fetchArtistTracks();
   };
 
-  const createArtistPlaylist = () => {
-    setClickedCreatePlaylist(true);
-    createPrivatePlaylist();
-  };
-
-  const cardButton = artistTracks.length ? (
-    <Button onClick={createArtistPlaylist}>
-      {!clickedCreatePlaylist &&
-        !loadingCreatingPlaylist &&
-        `Create private playlist with artist's tracks`}
-      {clickedCreatePlaylist &&
-        loadingCreatingPlaylist &&
-        `Creating playlist...`}
-      {clickedCreatePlaylist &&
-        successfullyCreatedPlaylist &&
-        `Playlist created! Have fun!`}
-      {clickedCreatePlaylist &&
-        !loadingCreatingPlaylist &&
-        !successfullyCreatedPlaylist &&
-        `There was an error while creating the playlist...`}
-    </Button>
+  const cardButtons = artistTracks.length ? (
+    <CreateUserPlaylistButton artist={artist} tracks={artistTracks} />
   ) : null;
 
   return (
     <Card
       imageUrl={artist.images[0].url}
       title={artist.name}
-      buttons={cardButton}
+      buttons={cardButtons}
     >
       {artist.genres.length > 0 && (
         <CardInfoIconedText IconComponent={FingerPrintIcon} title="Genres">
