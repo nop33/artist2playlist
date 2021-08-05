@@ -1,6 +1,6 @@
 import React from "react";
-import UserInfo from "./UserInfo";
-import LogoutButton from "./LogoutButton";
+import UserInfo from "../user/UserInfo";
+import LogoutButton from "../user/LogoutButton";
 
 // TODO: don't pass user related data as props to TopBar component
 const TopBar = ({ userImageUrl, userName }) => (

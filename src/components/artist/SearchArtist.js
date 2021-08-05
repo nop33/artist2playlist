@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-import { isValidHttpUrl } from "../utils";
-import spotify from "../apis/spotify";
+import { isValidHttpUrl } from "../../utils";
+import spotify from "../../apis/spotify";
 
 const SearchArtist = ({ onNewArtistDataFetched }) => {
   const [spotifyArtistUrl, setSpotifyArtistUrl] = useState("");

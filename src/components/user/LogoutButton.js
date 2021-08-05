@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { LogoutIcon } from "@heroicons/react/solid";
 
-import { logout } from "../auth";
+import { logout } from "../../auth";
 
 const LogoutButton = () => {
   const [logoutClicked, setLogoutClicked] = useState(false);
