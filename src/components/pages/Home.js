@@ -11,6 +11,7 @@ import UserContext from "../../contexts/UserContext";
 
 const Home = () => {
   const [currentUser, setCurrentUser] = useState(null);
+  // TODO: Move artist out of this component's state since only SearchArtist and ArtistInfo need it (Redux?)
   const [artist, setArtist] = useState(null);
   const [artistTracks, setArtistTracks] = useState([]);
   const [redirectToLogin, setRedirectToLogin] = useState(false);

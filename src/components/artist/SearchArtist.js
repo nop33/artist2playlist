@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { isValidHttpUrl } from "../../utils";
 import spotify from "../../apis/spotify";
 
 const SearchArtist = ({ onNewArtistDataFetched }) => {
   const [spotifyArtistUrl, setSpotifyArtistUrl] = useState("");
+  // TODO: When calling onNewArtistDataFetched, it triggers a re-render of this component, since the state of the parent
+  // component has changed. This triggers another fetch of the artist data, since the useEffect of this component runs
+  // again. I am use references to avoid this, but there might be a better way (remove the state from the parent and put
+  // it into a centralized place - Redux?).
+  const previousSpotifyArtistUrlRef = useRef("");
+  let previousSpotifyArtistUrl = "";
 
   useEffect(() => {
     const fetchArtistInfo = async (spotifyArtistUrl) => {
@@ -24,8 +30,13 @@ const SearchArtist = ({ onNewArtistDataFetched }) => {
       onNewArtistDataFetched(data);
     };
 
-    fetchArtistInfo(spotifyArtistUrl);
-  }, [onNewArtistDataFetched, spotifyArtistUrl]);
+    previousSpotifyArtistUrlRef.current = spotifyArtistUrl;
+    if (previousSpotifyArtistUrl !== spotifyArtistUrl) {
+      fetchArtistInfo(spotifyArtistUrl);
+    }
+  }, [onNewArtistDataFetched, previousSpotifyArtistUrl, spotifyArtistUrl]);
+
+  previousSpotifyArtistUrl = previousSpotifyArtistUrlRef.current;
 
   return (
     <input
