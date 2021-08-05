@@ -113,10 +113,21 @@ const isLoggedIn = async () => {
   return isTokenStillValid() || (await refreshToken());
 };
 
+const logout = () => {
+  localStorage.removeItem("spotify-access-token");
+  localStorage.removeItem("spotify-expires-in");
+  localStorage.removeItem("spotify-refresh-token");
+  localStorage.removeItem("spotify-token-type");
+  localStorage.removeItem("spotify-token-issued-at");
+  localStorage.removeItem("spotify-code-verifier");
+  localStorage.removeItem("spotify-state");
+};
+
 export {
   authenticate,
   isLoggedIn,
   initiateSpotifyLogin,
   refreshToken,
   isTokenStillValid,
+  logout,
 };
