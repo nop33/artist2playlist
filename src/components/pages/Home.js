@@ -7,26 +7,21 @@ import TopBar from "../layout/TopBar";
 import PageLayout from "../layout/PageLayout";
 import ArtistInfo from "../artist/ArtistInfo";
 import SearchArtist from "../artist/SearchArtist";
+import UserContext from "../../contexts/UserContext";
 
 const Home = () => {
+  const [currentUser, setCurrentUser] = useState(null);
   const [artist, setArtist] = useState(null);
   const [artistTracks, setArtistTracks] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
   const [redirectToLogin, setRedirectToLogin] = useState(false);
-  const [clickedCreatePlaylist, setClickedCreatePlaylist] = useState(false);
-  const [successfullyCreatedPlaylist, setSuccessfullyCreatedPlaylist] =
-    useState(false);
 
   const fetchCurrentUser = async () => {
     const { data } = await spotify.get("/me");
-    setCurrentUser(data);
-  };
-
-  const onNewArtistDataFetched = async (artistData) => {
-    setArtist(artistData);
-    setArtistTracks([]);
-    setClickedCreatePlaylist(false);
-    setSuccessfullyCreatedPlaylist(false);
+    setCurrentUser({
+      id: data.id,
+      imageUrl: data.images[0].url,
+      name: data.display_name,
+    });
   };
 
   useEffect(() => {
@@ -48,28 +43,25 @@ const Home = () => {
     return null;
   }
 
+  const onNewArtistDataFetched = async (artistData) => {
+    setArtist(artistData);
+    setArtistTracks([]);
+  };
+
   return (
     <PageLayout>
       <div className="w-full lg:w-1/2">
-        {currentUser && (
-          <TopBar
-            userImageUrl={currentUser.images[0].url}
-            userName={currentUser.display_name}
-          />
-        )}
-        <SearchArtist onNewArtistDataFetched={onNewArtistDataFetched} />
-        {artist && (
-          <ArtistInfo
-            artist={artist}
-            artistTracks={artistTracks}
-            setArtistTracks={setArtistTracks}
-            clickedCreatePlaylist={clickedCreatePlaylist}
-            successfullyCreatedPlaylist={successfullyCreatedPlaylist}
-            setSuccessfullyCreatedPlaylist={setSuccessfullyCreatedPlaylist}
-            setClickedCreatePlaylist={setClickedCreatePlaylist}
-            currentUserId={currentUser.id}
-          />
-        )}
+        <UserContext.Provider value={currentUser}>
+          <TopBar />
+          <SearchArtist onNewArtistDataFetched={onNewArtistDataFetched} />
+          {artist && (
+            <ArtistInfo
+              artist={artist}
+              artistTracks={artistTracks}
+              setArtistTracks={setArtistTracks}
+            />
+          )}
+        </UserContext.Provider>
       </div>
     </PageLayout>
   );
