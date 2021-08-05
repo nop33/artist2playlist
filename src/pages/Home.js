@@ -3,7 +3,7 @@ import { Redirect } from "react-router-dom";
 
 import { isLoggedIn } from "../auth";
 import spotify from "../apis/spotify";
-import UserInfo from "../components/UserInfo";
+import TopBar from "../components/TopBar";
 import PageLayout from "../components/layout/PageLayout";
 import ArtistInfo from "../components/ArtistInfo";
 import SearchArtist from "../components/SearchArtist";
@@ -52,9 +52,9 @@ const Home = () => {
     <PageLayout>
       <div className="w-full lg:w-1/2">
         {currentUser && (
-          <UserInfo
-            imageUrl={currentUser.images[0].url}
-            name={currentUser.display_name}
+          <TopBar
+            userImageUrl={currentUser.images[0].url}
+            userName={currentUser.display_name}
           />
         )}
         <SearchArtist onNewArtistDataFetched={onNewArtistDataFetched} />
