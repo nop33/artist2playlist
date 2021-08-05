@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 
 import { isLoggedIn } from "../auth";
-import { isValidHttpUrl } from "../utils";
 import spotify from "../apis/spotify";
 import UserInfo from "../components/UserInfo";
 import PageLayout from "../components/layout/PageLayout";
@@ -10,7 +9,6 @@ import ArtistInfo from "../components/ArtistInfo";
 import SearchArtist from "../components/SearchArtist";
 
 const Home = () => {
-  const [spotifyArtistUrl, setSpotifyArtistUrl] = useState("");
   const [artist, setArtist] = useState(null);
   const [artistTracks, setArtistTracks] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -24,9 +22,8 @@ const Home = () => {
     setCurrentUser(data);
   };
 
-  const fetchArtistInfo = async (artistId) => {
-    const { data } = await spotify.get(`/artists/${artistId}`);
-    setArtist(data);
+  const onNewArtistDataFetched = async (artistData) => {
+    setArtist(artistData);
     setArtistTracks([]);
     setClickedCreatePlaylist(false);
     setSuccessfullyCreatedPlaylist(false);
@@ -38,20 +35,10 @@ const Home = () => {
         setRedirectToLogin(true);
       } else {
         fetchCurrentUser();
-        if (spotifyArtistUrl) {
-          const url =
-            spotifyArtistUrl && isValidHttpUrl(spotifyArtistUrl)
-              ? new URL(spotifyArtistUrl)
-              : {};
-          if (isValidSpotifyArtistUrl(url.hostname, url.pathname)) {
-            const artistId = url.pathname.replace("/artist/", "");
-            fetchArtistInfo(artistId);
-          }
-        }
       }
     };
     fetchData();
-  }, [spotifyArtistUrl]);
+  }, []);
 
   if (redirectToLogin) {
     return <Redirect to="/login" />;
@@ -70,10 +57,7 @@ const Home = () => {
             name={currentUser.display_name}
           />
         )}
-        <SearchArtist
-          spotifyArtistUrl={spotifyArtistUrl}
-          setSpotifyArtistUrl={setSpotifyArtistUrl}
-        />
+        <SearchArtist onNewArtistDataFetched={onNewArtistDataFetched} />
         {artist && (
           <ArtistInfo
             artist={artist}
@@ -90,9 +74,5 @@ const Home = () => {
     </PageLayout>
   );
 };
-
-function isValidSpotifyArtistUrl(hostname, pathname) {
-  return hostname === "open.spotify.com" && pathname.includes("/artist/");
-}
 
 export default Home;
