@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
-import spotify from "../apis/spotify";
-import { arrayChunks } from "../utils";
-import Button from "../components/Button";
-import Card from "../components/Card";
-import CardInfoIconedText from "../components/CardInfoIconedText";
+import spotify from "../../apis/spotify";
+import { arrayChunks } from "../../utils";
+import Button from "../common/Button";
+import Card from "../common/Card";
+import CardInfoIconedText from "../common/CardInfoIconedText";
 import {
   FingerPrintIcon,
   UsersIcon,

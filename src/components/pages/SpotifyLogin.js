@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 
-import { isTokenStillValid, initiateSpotifyLogin } from "../auth";
-import Button from "../components/Button";
-import PageLayout from "../components/layout/PageLayout";
+import { isTokenStillValid, initiateSpotifyLogin } from "../../auth";
+import Button from "../common/Button";
+import PageLayout from "../layout/PageLayout";
 
 const SpotifyLogin = () => {
   const [loggedIn, setLoggedIn] = useState(isTokenStillValid());

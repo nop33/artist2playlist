@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 
-import { isLoggedIn } from "../auth";
-import spotify from "../apis/spotify";
-import TopBar from "../components/TopBar";
-import PageLayout from "../components/layout/PageLayout";
-import ArtistInfo from "../components/ArtistInfo";
-import SearchArtist from "../components/SearchArtist";
+import { isLoggedIn } from "../../auth";
+import spotify from "../../apis/spotify";
+import TopBar from "../layout/TopBar";
+import PageLayout from "../layout/PageLayout";
+import ArtistInfo from "../artist/ArtistInfo";
+import SearchArtist from "../artist/SearchArtist";
 
 const Home = () => {
   const [artist, setArtist] = useState(null);

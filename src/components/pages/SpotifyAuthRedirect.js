@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-import { authenticate } from "../auth";
-import PageLayout from "../components/layout/PageLayout";
+import { authenticate } from "../../auth";
+import PageLayout from "../layout/PageLayout";
 
 const SpotifyAuthRedirect = () => {
   const [authSuccessful, setAuthSuccessful] = useState(false);
