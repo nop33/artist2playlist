@@ -2,10 +2,9 @@ import React from "react";
 import UserInfo from "../user/UserInfo";
 import LogoutButton from "../user/LogoutButton";
 
-// TODO: don't pass user related data as props to TopBar component
-const TopBar = ({ userImageUrl, userName }) => (
+const TopBar = () => (
   <div className="flex justify-between mb-4">
-    <UserInfo imageUrl={userImageUrl} name={userName} />
+    <UserInfo />
     <LogoutButton />
   </div>
 );

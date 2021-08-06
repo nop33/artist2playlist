@@ -7,14 +7,13 @@ import {
 
 import spotify from "../../apis/spotify";
 import { arrayChunks } from "../../utils";
-import Button from "../common/Button";
 import Card from "../common/Card";
 import CardInfoIconedText from "../common/CardInfoIconedText";
 import CreateUserPlaylistButton from "../user/CreateUserPlaylistButton";
+import LoadingText from "../common/LoadingText";
 
 const ArtistInfo = ({ artistInfo }) => {
-  const [artistTracks, fetchArtistTracks, isLoadingArtistTracks] =
-    useArtistTracks(artistInfo);
+  const [artistTracks, isLoadingArtistTracks] = useArtistTracks(artistInfo);
 
   const cardButtons = artistTracks.length ? (
     <CreateUserPlaylistButton artist={artistInfo} tracks={artistTracks} />
@@ -38,9 +37,7 @@ const ArtistInfo = ({ artistInfo }) => {
       </CardInfoIconedText>
       <CardInfoIconedText IconComponent={MusicNoteIcon}>
         {isLoadingArtistTracks ? (
-          "Loading..."
-        ) : artistTracks.length === 0 ? (
-          <Button onClick={fetchArtistTracks}>Fetch discography</Button>
+          <LoadingText text="Loading tracks" />
         ) : (
           `${artistTracks.length.toLocaleString()} tracks`
         )}
@@ -55,62 +52,66 @@ const useArtistTracks = (artistInfo) => {
 
   useEffect(() => {
     setArtistTracks([]);
-  }, [artistInfo]);
 
-  const fetchArtistTracks = async () => {
-    setIsLoadingArtistTracks(true);
-    const artistAlbums = [];
-    const params = { include_groups: "album,single", limit: 20 };
-    let artistAlbumsResults = await spotify.get(
-      `/artists/${artistInfo.id}/albums`,
-      { params }
-    );
-    while (artistAlbums.length < artistAlbumsResults.data.total) {
-      let artistAlbumsChunk = artistAlbumsResults.data.items;
-      artistAlbums.push(...artistAlbumsChunk);
-      params.offset = artistAlbums.length;
-      artistAlbumsResults = await spotify.get(
+    const fetchArtistTracks = async () => {
+      setIsLoadingArtistTracks(true);
+      const artistAlbums = [];
+      const params = { include_groups: "album,single", limit: 20 };
+      let artistAlbumsResults = await spotify.get(
         `/artists/${artistInfo.id}/albums`,
-        {
-          params,
-        }
+        { params }
       );
-    }
-
-    const artistAlbumsIds = artistAlbums.map((album) => album.id);
-    const artistAlbumsIdsChunks = [...arrayChunks(artistAlbumsIds, 20)];
-    const albumsResults = [];
-    let i = 0;
-    while (i < artistAlbumsIdsChunks.length) {
-      let albumsResultsChunk = await spotify.get(`/albums`, {
-        params: { ids: artistAlbumsIdsChunks[i].join(",") },
-      });
-      albumsResults.push(...albumsResultsChunk.data.albums);
-      i++;
-    }
-
-    const tracks = [];
-    i = 0;
-    while (i < albumsResults.length) {
-      let albumTracks = albumsResults[i].tracks.items;
-      while (albumTracks.length < albumsResults[i].tracks.total) {
-        let albumTracksChunk = await spotify.get(
-          `/albums/${albumsResults[i].id}/tracks`,
+      while (artistAlbums.length < artistAlbumsResults.data.total) {
+        let artistAlbumsChunk = artistAlbumsResults.data.items;
+        artistAlbums.push(...artistAlbumsChunk);
+        params.offset = artistAlbums.length;
+        artistAlbumsResults = await spotify.get(
+          `/artists/${artistInfo.id}/albums`,
           {
-            params: { offset: albumTracks.length },
+            params,
           }
         );
-        albumTracks.push(...albumTracksChunk.data.items);
       }
-      tracks.push(...albumTracks);
-      i++;
+
+      const artistAlbumsIds = artistAlbums.map((album) => album.id);
+      const artistAlbumsIdsChunks = [...arrayChunks(artistAlbumsIds, 20)];
+      const albumsResults = [];
+      let i = 0;
+      while (i < artistAlbumsIdsChunks.length) {
+        let albumsResultsChunk = await spotify.get(`/albums`, {
+          params: { ids: artistAlbumsIdsChunks[i].join(",") },
+        });
+        albumsResults.push(...albumsResultsChunk.data.albums);
+        i++;
+      }
+
+      const tracks = [];
+      i = 0;
+      while (i < albumsResults.length) {
+        let albumTracks = albumsResults[i].tracks.items;
+        while (albumTracks.length < albumsResults[i].tracks.total) {
+          let albumTracksChunk = await spotify.get(
+            `/albums/${albumsResults[i].id}/tracks`,
+            {
+              params: { offset: albumTracks.length },
+            }
+          );
+          albumTracks.push(...albumTracksChunk.data.items);
+        }
+        tracks.push(...albumTracks);
+        i++;
+      }
+
+      setArtistTracks(tracks);
+      setIsLoadingArtistTracks(false);
+    };
+
+    if (artistInfo.id) {
+      fetchArtistTracks();
     }
+  }, [artistInfo]);
 
-    setArtistTracks(tracks);
-    setIsLoadingArtistTracks(false);
-  };
-
-  return [artistTracks, fetchArtistTracks, isLoadingArtistTracks];
+  return [artistTracks, isLoadingArtistTracks];
 };
 
 export default ArtistInfo;
