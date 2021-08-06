@@ -10,31 +10,26 @@ import SearchArtist from "../artist/SearchArtist";
 import UserContext from "../../contexts/UserContext";
 
 const Home = () => {
-  const [currentUser, setCurrentUser] = useState(null);
-  // TODO: Move artist out of this component's state since only SearchArtist and ArtistInfo need it (Redux?)
+  const [currentUser, fetchCurrentUser] = useCurrentUser(null);
+  const [redirectToLogin, setRedirectToLogin] = useState(false);
   const [artist, setArtist] = useState(null);
   const [artistTracks, setArtistTracks] = useState([]);
-  const [redirectToLogin, setRedirectToLogin] = useState(false);
 
-  const fetchCurrentUser = async () => {
-    const { data } = await spotify.get("/me");
-    setCurrentUser({
-      id: data.id,
-      imageUrl: data.images[0].url,
-      name: data.display_name,
-    });
+  const onNewArtistDataFetched = async (artistData) => {
+    setArtist(artistData);
+    setArtistTracks([]);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       if (!(await isLoggedIn())) {
         setRedirectToLogin(true);
-      } else {
+      } else if (!currentUser) {
         fetchCurrentUser();
       }
     };
     fetchData();
-  }, []);
+  }, [currentUser, fetchCurrentUser]);
 
   if (redirectToLogin) {
     return <Redirect to="/login" />;
@@ -43,11 +38,6 @@ const Home = () => {
   if (!currentUser) {
     return null;
   }
-
-  const onNewArtistDataFetched = async (artistData) => {
-    setArtist(artistData);
-    setArtistTracks([]);
-  };
 
   return (
     <PageLayout>
@@ -66,6 +56,21 @@ const Home = () => {
       </div>
     </PageLayout>
   );
+};
+
+const useCurrentUser = (initialValue) => {
+  const [currentUser, setCurrentUser] = useState(initialValue);
+
+  const fetchCurrentUser = async () => {
+    const { data } = await spotify.get("/me");
+    setCurrentUser({
+      id: data.id,
+      imageUrl: data.images[0].url,
+      name: data.display_name,
+    });
+  };
+
+  return [currentUser, fetchCurrentUser];
 };
 
 export default Home;
