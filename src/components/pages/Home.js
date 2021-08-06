@@ -12,13 +12,7 @@ import UserContext from "../../contexts/UserContext";
 const Home = () => {
   const [currentUser, fetchCurrentUser] = useCurrentUser(null);
   const [redirectToLogin, setRedirectToLogin] = useState(false);
-  const [artist, setArtist] = useState(null);
-  const [artistTracks, setArtistTracks] = useState([]);
-
-  const onNewArtistDataFetched = async (artistData) => {
-    setArtist(artistData);
-    setArtistTracks([]);
-  };
+  const [artistInfo, setArtistInfo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,14 +38,8 @@ const Home = () => {
       <div className="w-full lg:w-1/2">
         <UserContext.Provider value={currentUser}>
           <TopBar />
-          <SearchArtist onNewArtistDataFetched={onNewArtistDataFetched} />
-          {artist && (
-            <ArtistInfo
-              artist={artist}
-              artistTracks={artistTracks}
-              setArtistTracks={setArtistTracks}
-            />
-          )}
+          <SearchArtist onArtistInfoFetched={setArtistInfo} />
+          {artistInfo && <ArtistInfo artistInfo={artistInfo} />}
         </UserContext.Provider>
       </div>
     </PageLayout>

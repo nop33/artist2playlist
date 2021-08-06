@@ -1,40 +1,84 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  FingerPrintIcon,
+  UsersIcon,
+  MusicNoteIcon,
+} from "@heroicons/react/solid";
 
 import spotify from "../../apis/spotify";
 import { arrayChunks } from "../../utils";
 import Button from "../common/Button";
 import Card from "../common/Card";
 import CardInfoIconedText from "../common/CardInfoIconedText";
-import {
-  FingerPrintIcon,
-  UsersIcon,
-  MusicNoteIcon,
-} from "@heroicons/react/solid";
 import CreateUserPlaylistButton from "../user/CreateUserPlaylistButton";
 
-const ArtistInfo = ({ artist, artistTracks, setArtistTracks }) => {
-  const [loadingTracks, setLoadingTracks] = useState(false);
+const ArtistInfo = ({ artistInfo }) => {
+  const [artistTracks, fetchArtistTracks, isLoadingArtistTracks] =
+    useArtistTracks(artistInfo);
+
+  const cardButtons = artistTracks.length ? (
+    <CreateUserPlaylistButton artist={artistInfo} tracks={artistTracks} />
+  ) : null;
+
+  return (
+    <Card
+      imageUrl={artistInfo.images[0].url}
+      title={artistInfo.name}
+      buttons={cardButtons}
+    >
+      {artistInfo.genres.length > 0 && (
+        <CardInfoIconedText IconComponent={FingerPrintIcon} title="Genres">
+          {artistInfo.genres
+            .map((genre) => <span key={genre}>{genre}</span>)
+            .reduce((prev, curr) => [prev, ", ", curr])}
+        </CardInfoIconedText>
+      )}
+      <CardInfoIconedText IconComponent={UsersIcon}>
+        {artistInfo.followers.total.toLocaleString()} followers
+      </CardInfoIconedText>
+      <CardInfoIconedText IconComponent={MusicNoteIcon}>
+        {isLoadingArtistTracks ? (
+          "Loading..."
+        ) : artistTracks.length === 0 ? (
+          <Button onClick={fetchArtistTracks}>Fetch discography</Button>
+        ) : (
+          `${artistTracks.length.toLocaleString()} tracks`
+        )}
+      </CardInfoIconedText>
+    </Card>
+  );
+};
+
+const useArtistTracks = (artistInfo) => {
+  const [isLoadingArtistTracks, setIsLoadingArtistTracks] = useState(false);
+  const [artistTracks, setArtistTracks] = useState([]);
+
+  useEffect(() => {
+    setArtistTracks([]);
+  }, [artistInfo]);
 
   const fetchArtistTracks = async () => {
-    setLoadingTracks(true);
+    setIsLoadingArtistTracks(true);
     const artistAlbums = [];
     const params = { include_groups: "album,single", limit: 20 };
     let artistAlbumsResults = await spotify.get(
-      `/artists/${artist.id}/albums`,
+      `/artists/${artistInfo.id}/albums`,
       { params }
     );
     while (artistAlbums.length < artistAlbumsResults.data.total) {
       let artistAlbumsChunk = artistAlbumsResults.data.items;
       artistAlbums.push(...artistAlbumsChunk);
       params.offset = artistAlbums.length;
-      artistAlbumsResults = await spotify.get(`/artists/${artist.id}/albums`, {
-        params,
-      });
+      artistAlbumsResults = await spotify.get(
+        `/artists/${artistInfo.id}/albums`,
+        {
+          params,
+        }
+      );
     }
 
     const artistAlbumsIds = artistAlbums.map((album) => album.id);
     const artistAlbumsIdsChunks = [...arrayChunks(artistAlbumsIds, 20)];
-
     const albumsResults = [];
     let i = 0;
     while (i < artistAlbumsIdsChunks.length) {
@@ -45,67 +89,28 @@ const ArtistInfo = ({ artist, artistTracks, setArtistTracks }) => {
       i++;
     }
 
-    const artistTracks = [];
-
-    let j = 0;
-    while (j < albumsResults.length) {
-      let albumTracks = albumsResults[j].tracks.items;
-      while (albumTracks.length < albumsResults[j].tracks.total) {
+    const tracks = [];
+    i = 0;
+    while (i < albumsResults.length) {
+      let albumTracks = albumsResults[i].tracks.items;
+      while (albumTracks.length < albumsResults[i].tracks.total) {
         let albumTracksChunk = await spotify.get(
-          `/albums/${albumsResults[j].id}/tracks`,
+          `/albums/${albumsResults[i].id}/tracks`,
           {
             params: { offset: albumTracks.length },
           }
         );
         albumTracks.push(...albumTracksChunk.data.items);
       }
-      artistTracks.push(...albumTracks);
-      j++;
+      tracks.push(...albumTracks);
+      i++;
     }
 
-    setArtistTracks(artistTracks);
-    setLoadingTracks(false);
+    setArtistTracks(tracks);
+    setIsLoadingArtistTracks(false);
   };
 
-  const onFetchDiscographyClicked = () => {
-    fetchArtistTracks();
-  };
-
-  const cardButtons = artistTracks.length ? (
-    <CreateUserPlaylistButton artist={artist} tracks={artistTracks} />
-  ) : null;
-
-  return (
-    <Card
-      imageUrl={artist.images[0].url}
-      title={artist.name}
-      buttons={cardButtons}
-    >
-      {artist.genres.length > 0 && (
-        <CardInfoIconedText IconComponent={FingerPrintIcon} title="Genres">
-          {artist.genres
-            .map((genre) => <span key={genre}>{genre}</span>)
-            .reduce((prev, curr) => [prev, ", ", curr])}
-        </CardInfoIconedText>
-      )}
-      <CardInfoIconedText IconComponent={UsersIcon}>
-        <div>{artist.followers.total.toLocaleString()} followers</div>
-      </CardInfoIconedText>
-      <CardInfoIconedText IconComponent={MusicNoteIcon}>
-        <div>
-          {loadingTracks ? (
-            "Loading..."
-          ) : artistTracks.length === 0 ? (
-            <Button onClick={onFetchDiscographyClicked}>
-              Fetch discography
-            </Button>
-          ) : (
-            `${artistTracks.length.toLocaleString()} tracks`
-          )}
-        </div>
-      </CardInfoIconedText>
-    </Card>
-  );
+  return [artistTracks, fetchArtistTracks, isLoadingArtistTracks];
 };
 
 export default ArtistInfo;

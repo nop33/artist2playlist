@@ -3,14 +3,14 @@ import React, { useState } from "react";
 import { isValidHttpUrl } from "../../utils";
 import spotify from "../../apis/spotify";
 
-const SearchArtist = ({ onNewArtistDataFetched }) => {
+const SearchArtist = ({ onArtistInfoFetched }) => {
   const [spotifyArtistUrl, setSpotifyArtistUrl] = useState("");
 
   const fetchArtistInfo = async (spotifyArtistUrl) => {
     const { data } = await spotify.get(
       `/artists/${getArtistIdFromUrl(spotifyArtistUrl)}`
     );
-    onNewArtistDataFetched(data);
+    onArtistInfoFetched(data);
   };
 
   const onSpotifyArtistUrlChange = (event) => {
