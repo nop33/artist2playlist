@@ -5,8 +5,9 @@ import { arrayChunks } from "../../utils";
 import Button from "../common/Button";
 import UserContext from "../../contexts/UserContext";
 
-const CreateUserPlaylistButton = ({ artist, tracks }) => {
+const CreateUserPlaylistButton = ({ artistName, tracks }) => {
   const [loadingCreatingPlaylist, setLoadingCreatingPlaylist] = useState(false);
+  const [newlyCreatedPlaylistUrl, setNewlyCreatedPlaylistUrl] = useState(null);
   const [clickedCreatePlaylist, setClickedCreatePlaylist] = useState(false);
   const [successfullyCreatedPlaylist, setSuccessfullyCreatedPlaylist] =
     useState(false);
@@ -17,10 +18,12 @@ const CreateUserPlaylistButton = ({ artist, tracks }) => {
     const newPrivatePlaylist = await spotify.post(
       `/users/${user.id}/playlists`,
       {
-        name: `to curate artist: ${artist.name}`,
+        name: `to curate artist: ${artistName}`,
         public: false,
       }
     );
+
+    setNewlyCreatedPlaylistUrl(newPrivatePlaylist.data.external_urls.spotify);
 
     const artistTracksChunks = [...arrayChunks(tracks, 100)];
 
@@ -49,24 +52,24 @@ const CreateUserPlaylistButton = ({ artist, tracks }) => {
   useEffect(() => {
     setClickedCreatePlaylist(false);
     setSuccessfullyCreatedPlaylist(false);
-  }, [artist]);
+  }, [artistName]);
 
-  return (
+  return !clickedCreatePlaylist && !loadingCreatingPlaylist ? (
     <Button onClick={createArtistPlaylist}>
-      {!clickedCreatePlaylist &&
-        !loadingCreatingPlaylist &&
-        `Create private playlist with artist's tracks`}
-      {clickedCreatePlaylist &&
-        loadingCreatingPlaylist &&
-        `Creating playlist...`}
-      {clickedCreatePlaylist &&
-        successfullyCreatedPlaylist &&
-        `Playlist created! Have fun!`}
-      {clickedCreatePlaylist &&
-        !loadingCreatingPlaylist &&
-        !successfullyCreatedPlaylist &&
-        `There was an error while creating the playlist...`}
+      Create private playlist with artist's tracks
     </Button>
+  ) : clickedCreatePlaylist && loadingCreatingPlaylist ? (
+    <Button disabled>Creating playlist...</Button>
+  ) : clickedCreatePlaylist && successfullyCreatedPlaylist ? (
+    <Button onClick={() => window.open(newlyCreatedPlaylistUrl)}>
+      Playlist created! Have fun!
+    </Button>
+  ) : clickedCreatePlaylist &&
+    !loadingCreatingPlaylist &&
+    !successfullyCreatedPlaylist ? (
+    <Button disabled>There was an error while creating the playlist...</Button>
+  ) : (
+    ""
   );
 };
 
