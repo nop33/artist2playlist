@@ -16,7 +16,10 @@ const ArtistInfo = ({ artistInfo }) => {
   const [artistTracks, isLoadingArtistTracks] = useArtistTracks(artistInfo);
 
   const cardButtons = artistTracks.length ? (
-    <CreateUserPlaylistButton artist={artistInfo} tracks={artistTracks} />
+    <CreateUserPlaylistButton
+      artistName={artistInfo.name}
+      tracks={artistTracks}
+    />
   ) : null;
 
   return (
