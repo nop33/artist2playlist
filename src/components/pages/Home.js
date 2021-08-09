@@ -15,14 +15,19 @@ const Home = () => {
   const [artistInfo, setArtistInfo] = useState(null);
 
   useEffect(() => {
+    let isSubscribed = true;
     const fetchData = async () => {
-      if (!(await isLoggedIn())) {
-        setRedirectToLogin(true);
-      } else if (!currentUser) {
-        fetchCurrentUser();
+      if (isSubscribed) {
+        if (!(await isLoggedIn())) {
+          setRedirectToLogin(true);
+        } else if (!currentUser) {
+          fetchCurrentUser();
+        }
       }
     };
     fetchData();
+
+    return () => (isSubscribed = false);
   }, [currentUser, fetchCurrentUser]);
 
   if (redirectToLogin) {

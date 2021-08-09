@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Redirect } from "react-router-dom";
 
 import { authenticate } from "../../auth";
 import PageLayout from "../layout/PageLayout";
@@ -8,17 +9,21 @@ const SpotifyAuthRedirect = () => {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    let isSubscribed = true;
     const doAuthenticate = async () => {
-      const result = await authenticate();
-      setAuthSuccessful(result);
-      setHasError(!result);
+      if (isSubscribed) {
+        const result = await authenticate();
+        setAuthSuccessful(result);
+        setHasError(!result);
+      }
     };
-
     doAuthenticate();
+
+    return () => (isSubscribed = false);
   }, []);
 
   if (authSuccessful) {
-    window.close();
+    return <Redirect to="/" />;
   }
 
   return (

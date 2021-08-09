@@ -8,7 +8,7 @@ import {
   getUrlParams,
 } from "./utils";
 
-const initiateSpotifyLogin = async () => {
+const constructSpotifyLoginUrl = async () => {
   const codeVerifier = generateId(generateRandomInt(43, 128));
   const hash = await sha256(codeVerifier);
   const codeChallenge = base64UrlEncode(hash);
@@ -17,7 +17,7 @@ const initiateSpotifyLogin = async () => {
   localStorage.setItem("spotify-code-verifier", codeVerifier);
   localStorage.setItem("spotify-state", state);
 
-  const authURL =
+  const authUrl =
     `https://accounts.spotify.com/authorize` +
     `?response_type=code` +
     `&client_id=${process.env.REACT_APP_SPOTIFY_CLIENT_ID}` +
@@ -27,7 +27,7 @@ const initiateSpotifyLogin = async () => {
     `&code_challenge=${codeChallenge}` +
     `&code_challenge_method=S256`;
 
-  window.open(authURL);
+  return authUrl;
 };
 
 const getAndStoreAccessToken = async (postParams) => {
@@ -126,7 +126,7 @@ const logout = () => {
 export {
   authenticate,
   isLoggedIn,
-  initiateSpotifyLogin,
+  constructSpotifyLoginUrl,
   refreshToken,
   isTokenStillValid,
   logout,
